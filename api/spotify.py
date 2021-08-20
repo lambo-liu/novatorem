@@ -17,8 +17,7 @@ SPOTIFY_SECRET_ID = os.getenv("SPOTIFY_SECRET_ID")
 SPOTIFY_REFRESH_TOKEN = os.getenv("SPOTIFY_REFRESH_TOKEN")
 
 REFRESH_TOKEN_URL = "https://accounts.spotify.com/api/token"
-NOW_PLAYING_URL = "https://api.spotify.com/v1/me/player/currently-playing"
-RECENTLY_PLAYING_URL = "https://api.spotify.com/v1/me/player/recently-played?limit=1"
+PLAYLIST_URL = "https://api.spotify.com/v1/playlists/4xJEhbOXvtrlwtF9bEFvrS"
 
 app = Flask(__name__)
 
@@ -46,25 +45,14 @@ def refreshToken():
         raise KeyError(str(response.json()))
 
 
-def recentlyPlayed():
+def getPlaylist():
     token = refreshToken()
     headers = {"Authorization": f"Bearer {token}"}
-    response = requests.get(RECENTLY_PLAYING_URL, headers=headers)
+    response = requests.get(PLAYLIST_URL, headers=headers)
 
     if response.status_code == 204:
         return {}
     return response.json()
-
-
-def nowPlaying():
-    token = refreshToken()
-    headers = {"Authorization": f"Bearer {token}"}
-    response = requests.get(NOW_PLAYING_URL, headers=headers)
-
-    if response.status_code == 204:
-        return {}
-    return response.json()
-
 
 def barGen(barCount):
     barCSS = ""
@@ -90,17 +78,10 @@ def makeSVG(data):
     contentBar = "".join(["<div class='bar'></div>" for i in range(barCount)])
     barCSS = barGen(barCount)
 
-    if data == {} or data["item"] == "None":
-        # contentBar = "" #Shows/Hides the EQ bar if no song is currently playing
-        currentStatus = "Was playing:"
-        recentPlays = recentlyPlayed()
-        # recentPlaysLength = len(recentPlays["items"])
-        # itemIndex = random.randint(0, recentPlaysLength - 1)
-        # item = recentPlays["items"][itemIndex]["track"]
-        item = recentPlays["items"][0]["track"]
-    else:
-        item = data["item"]
-        currentStatus = "Vibing to:"
+    currentStatus = "Vibing to:"
+    playlist = getPlaylist()
+    randIndex = random.randint(0, len(playlist) - 1)
+    item = playlist["tracks"]["items"][randIndex]["track"]
     image = loadImageB64(item["album"]["images"][1]["url"])
     artistName = item["artists"][0]["name"].replace("&", "&amp;")
     songName = item["name"].replace("&", "&amp;")
@@ -120,8 +101,7 @@ def makeSVG(data):
 @app.route("/", defaults={"path": ""})
 @app.route("/<path:path>")
 def catch_all(path):
-    data = nowPlaying()
-    svg = makeSVG(data)
+    svg = makeSVG()
 
     resp = Response(svg, mimetype="image/svg+xml")
     resp.headers["Cache-Control"] = "s-maxage=1"
