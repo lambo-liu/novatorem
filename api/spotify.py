@@ -52,7 +52,7 @@ def getPlaylist():
 
     if response.status_code == 204:
         return {}
-    return response.tracks.json()
+    return response["tracks"].json()
 
 def barGen(barCount):
     barCSS = ""
