@@ -80,7 +80,7 @@ def makeSVG():
 
     currentStatus = "Vibing to:"
     playlist = getPlaylist()
-    randIndex = playlist["tracks"]["total"] - 1
+    randIndex = random.randint(0, playlist["tracks"]["total"] - 1)
     item = playlist["tracks"]["items"][randIndex]["track"]
     image = loadImageB64(item["album"]["images"][1]["url"])
     artistName = item["artists"][0]["name"].replace("&", "&amp;")
