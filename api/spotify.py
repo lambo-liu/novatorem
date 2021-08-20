@@ -52,7 +52,7 @@ def getPlaylist():
 
     if response.status_code == 204:
         return {}
-    return response.tracks.json()
+    return response.json()
 
 def barGen(barCount):
     barCSS = ""
@@ -80,8 +80,8 @@ def makeSVG():
 
     currentStatus = "Vibing to:"
     playlist = getPlaylist()
-    randIndex = random.randint(0, len(playlist.items) - 1)
-    item = playlist["items"][randIndex]["track"]
+    randIndex = random.randint(0, len(playlist) - 1)
+    item = playlist["tracks"]["items"][randIndex]["track"]
     image = loadImageB64(item["album"]["images"][1]["url"])
     artistName = item["artists"][0]["name"].replace("&", "&amp;")
     songName = item["name"].replace("&", "&amp;")
