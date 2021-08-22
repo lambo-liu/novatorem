@@ -15,9 +15,10 @@ load_dotenv(find_dotenv())
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
 SPOTIFY_SECRET_ID = os.getenv("SPOTIFY_SECRET_ID")
 SPOTIFY_REFRESH_TOKEN = os.getenv("SPOTIFY_REFRESH_TOKEN")
+SPOTIFY_PLAYLIST_ID = os.getenv("SPOTIFY_PLAYLIST_ID")
 
 REFRESH_TOKEN_URL = "https://accounts.spotify.com/api/token"
-PLAYLIST_URL = "https://api.spotify.com/v1/playlists/4xJEhbOXvtrlwtF9bEFvrS"
+PLAYLIST_URL = "https://api.spotify.com/v1/playlists/"
 
 app = Flask(__name__)
 
@@ -36,7 +37,7 @@ def refreshToken():
 
     headers = {"Authorization": "Basic {}".format(getAuth())}
     response = requests.post(REFRESH_TOKEN_URL, data=data, headers=headers)
-    
+
     try:
         return response.json()["access_token"]
     except KeyError:
@@ -48,11 +49,12 @@ def refreshToken():
 def getPlaylist():
     token = refreshToken()
     headers = {"Authorization": f"Bearer {token}"}
-    response = requests.get(PLAYLIST_URL, headers=headers)
+    response = requests.get(PLAYLIST_URL + SPOTIFY_PLAYLIST_ID, headers=headers)
 
     if response.status_code == 204:
         return {}
     return response.json()
+
 
 def barGen(barCount):
     barCSS = ""
